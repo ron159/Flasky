@@ -26,11 +26,13 @@ SQLALCHEMY_COMMIT_ON_TEARDOWN = True	#更改自动提交
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 #邮件配置
-MAIL_SERVER = 'smtp.qq.com'	#邮件服务器
-MAIL_PORT = 465	#端口
-MAIL_USE_SSL = True		
-MAIL_USERNAME = '1312533774@qq.com'	#邮箱账号
-MAIL_PASSWORD = 'your_password'	#邮箱密码
+MAIL_SERVER = 'smtp.mail.com'	#邮件服务器
+MAIL_PORT = 587	#端口
+MAIL_USE_SSL = False
+MAIL_USE_TLS = True	
+MAIL_DEBUG = True	
+MAIL_USERNAME = 'jamesdd143@mail.com'	#邮箱账号
+MAIL_PASSWORD = r'jm-&X_85.5\NQhPD'	#邮箱密码
 
 #应用配置
 app.config.from_object(__name__)
@@ -49,7 +51,7 @@ def send_async_mail(app, msg):
 		mail.send(msg)
 
 def send_mail(to, sub, link):
-	msg = Message('Flasky邮件来啦', sender=('Flasy', '1312533774@qq.com'), recipients=[to])
+	msg = Message('Flasky邮件来啦', sender=('Flasy', 'jamesdd143@mail.com'), recipients=[to])
 	msg.body = sub + link
 	msg.html = '<h1>' + sub + '</h1><a href=' + link + '>' + link + '</a>'
 	thr = Thread(target=send_async_mail, args=[app, msg])
@@ -60,11 +62,11 @@ def send_mail(to, sub, link):
 class AdminForm(FlaskForm):
 	#邮箱验证
 	def account_check(self, field):
-		if field.data != 'huster1446@admin.com':
+		if field.data != 'admin@admin.com':
 			raise ValidationError('你可能是假的管理员')
 	#密码验证
 	def password_check(self, field):
-		if field.data != 'huster1446':
+		if field.data != 'admin':
 			raise ValidationError('你可能是假的管理员')
 
 	email = StringField("管理员邮箱", validators=[DataRequired(message='邮箱是空的请加油'), 
@@ -252,7 +254,7 @@ def signup():
 		#发送验证邮件
 		user = User.query.filter_by(email=form.email.data).first()
 		sub = "请点击下方链接继续完成注册："
-		link = 'www.hustljh.cn/c/' + str(user.id) + '/' + active_code
+		link = '127.0.0.1/c/' + str(user.id) + '/' + active_code
 		send_mail(new_user.email, sub, link)
 		
 		flash("请查收邮件以继续完成注册")
@@ -511,86 +513,86 @@ def internal_server_error(e):
 def bad_request(e):
 	return render_template('error.html', code='400'), 500
 
-#android登录路由控制
-@app.route('/android/login', methods=['POST'])
-def android_login():
-	#根据账号邮箱找到用户
-	email = request.form['account']
-	password = request.form['password']
-	user = User.query.filter_by(email=email).first()
-	#比较密码和注册状态
-	if user is not None and user.password == password and user.active_state == True:
-		return 'ok'
-	return 'error'
+# #android登录路由控制
+# @app.route('/android/login', methods=['POST'])
+# def android_login():
+# 	#根据账号邮箱找到用户
+# 	email = request.form['account']
+# 	password = request.form['password']
+# 	user = User.query.filter_by(email=email).first()
+# 	#比较密码和注册状态
+# 	if user is not None and user.password == password and user.active_state == True:
+# 		return 'ok'
+# 	return 'error'
 
-#初始化Android本地数据库
-@app.route('/android/init', methods=['POST'])
-def return_students():
-	email = request.form['account']
-	user = User.query.filter_by(email=email).first()
-	if user and user.students.count() != 0:
-		students = []
-		for student in user.students:
-			students.append(student.name + ' ' + student.stu_id + ' ' + student.cls + ' ' +
-				student.addr + ' ' + student.phone + ' ')
-		return ''.join(students)
-	return 'error'
+# #初始化Android本地数据库
+# @app.route('/android/init', methods=['POST'])
+# def return_students():
+# 	email = request.form['account']
+# 	user = User.query.filter_by(email=email).first()
+# 	if user and user.students.count() != 0:
+# 		students = []
+# 		for student in user.students:
+# 			students.append(student.name + ' ' + student.stu_id + ' ' + student.cls + ' ' +
+# 				student.addr + ' ' + student.phone + ' ')
+# 		return ''.join(students)
+# 	return 'error'
 
-#Android删除学生
-@app.route('/android/delete', methods=['POST'])
-def delete_student():
-	email = request.form['account']
-	#找到用户
-	user = User.query.filter_by(email=email).first()
-	#找到要删除的学生
-	student = Student.query.filter_by(stu_id=request.form['id'], user_id=user.id).first()
-	if student:
-		db.session.delete(student)
-		return 'ok'
-	return 'error'
+# #Android删除学生
+# @app.route('/android/delete', methods=['POST'])
+# def delete_student():
+# 	email = request.form['account']
+# 	#找到用户
+# 	user = User.query.filter_by(email=email).first()
+# 	#找到要删除的学生
+# 	student = Student.query.filter_by(stu_id=request.form['id'], user_id=user.id).first()
+# 	if student:
+# 		db.session.delete(student)
+# 		return 'ok'
+# 	return 'error'
 
-#Android修改或者新建学生
-@app.route('/android/change', methods=['POST'])
-def change_student():
-	#要修改的学生学号或者为空说明是新建学生
-	old_id = request.form['old_id']
-	email = request.form['account']
-	id = request.form['id']
-	name = request.form['name']
-	cls = request.form['cls']
-	addr = request.form['addr']
-	phone = request.form['phone']
-	#找到用户
-	user = User.query.filter_by(email=email).first()
-	if old_id != '':
-		#修改学生信息
-		student = Student.query.filter_by(stu_id=old_id, user_id=user.id).first();
-		if student:
-			student.stu_id = id
-			student.name = name
-			student.cls = cls
-			student.addr = addr
-			student.phone = phone
-			db.session.add(student)
-			return 'ok'
-		return 'error'
-	else:
-		#新增学生
-		#实例化学生
-		new_student = Student(stu_id=id, name=name, cls=cls, addr=addr, 
-			phone=phone, user_id=user.id)
-		db.session.add(new_student)
-		return 'ok'
-	return 'error'
+# #Android修改或者新建学生
+# @app.route('/android/change', methods=['POST'])
+# def change_student():
+# 	#要修改的学生学号或者为空说明是新建学生
+# 	old_id = request.form['old_id']
+# 	email = request.form['account']
+# 	id = request.form['id']
+# 	name = request.form['name']
+# 	cls = request.form['cls']
+# 	addr = request.form['addr']
+# 	phone = request.form['phone']
+# 	#找到用户
+# 	user = User.query.filter_by(email=email).first()
+# 	if old_id != '':
+# 		#修改学生信息
+# 		student = Student.query.filter_by(stu_id=old_id, user_id=user.id).first();
+# 		if student:
+# 			student.stu_id = id
+# 			student.name = name
+# 			student.cls = cls
+# 			student.addr = addr
+# 			student.phone = phone
+# 			db.session.add(student)
+# 			return 'ok'
+# 		return 'error'
+# 	else:
+# 		#新增学生
+# 		#实例化学生
+# 		new_student = Student(stu_id=id, name=name, cls=cls, addr=addr, 
+# 			phone=phone, user_id=user.id)
+# 		db.session.add(new_student)
+# 		return 'ok'
+# 	return 'error'
 
-#android反馈活动处理
-@app.route('/android/feedback', methods=['POST'])
-def feedbakc():
-	message = request.form['message']
-	email = request.form['account']
-	sub = "反馈信息来自:" + email
-	send_mail('huster1446@gmail.com', sub, message)
-	return 'ok'
+# #android反馈活动处理
+# @app.route('/android/feedback', methods=['POST'])
+# def feedbakc():
+# 	message = request.form['message']
+# 	email = request.form['account']
+# 	sub = "反馈信息来自:" + email
+# 	send_mail('huster1446@gmail.com', sub, message)
+# 	return 'ok'
 
 
 #文件下载路由控制
