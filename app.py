@@ -51,7 +51,7 @@ def send_async_mail(app, msg):
 		mail.send(msg)
 
 def send_mail(to, sub, link):
-	msg = Message('Flasky邮件来啦', sender=('Flasy', 'jamesdd143@mail.com'), recipients=[to])
+	msg = Message('Flaskr邮件来啦', sender=('Flaskr', 'jamesdd143@mail.com'), recipients=[to])
 	msg.body = sub + link
 	msg.html = '<h1>' + sub + '</h1><a href=' + link + '>' + link + '</a>'
 	thr = Thread(target=send_async_mail, args=[app, msg])
@@ -63,16 +63,16 @@ class AdminForm(FlaskForm):
 	#邮箱验证
 	def account_check(self, field):
 		if field.data != 'admin@admin.com':
-			raise ValidationError('你可能是假的管理员')
+			raise ValidationError('账号或者密码错误')
 	#密码验证
 	def password_check(self, field):
 		if field.data != 'admin':
-			raise ValidationError('你可能是假的管理员')
+			raise ValidationError('账号或者密码错误')
 
-	email = StringField("管理员邮箱", validators=[DataRequired(message='邮箱是空的请加油'), 
-		Email(message=u'不是邮箱'), account_check])
-	password = PasswordField("管理员密码", validators=[DataRequired(message='密码忘了哦'), password_check])
-	login = SubmitField("有请最牛逼的管理员登录")
+	email = StringField("管理员邮箱", validators=[DataRequired(message='邮箱不能为空'), 
+		Email(message=u'非法邮箱地址'), account_check])
+	password = PasswordField("管理员密码", validators=[DataRequired(message='密码不能为空'), password_check])
+	login = SubmitField("登录")
 
 #管理员增加用户表单模型
 class AdminAddForm(FlaskForm):
@@ -92,30 +92,30 @@ class LoginForm(FlaskForm):
 	#验证用户是否存在
 	def email_exist(self, field):
 		if not User.query.filter_by(email=field.data).first():
-			raise ValidationError('这邮箱不能用啊')
+			raise ValidationError('账号不存在')
 	
-	email = StringField("邮箱", validators=[DataRequired(message='邮箱是空的请加油'), 
-		Email(message=u'你这是邮箱吗?'), email_exist])
-	password = PasswordField("密码", validators=[DataRequired(message='密码都没有咋登录')])
+	email = StringField("邮箱", validators=[DataRequired(message='邮箱为空'), 
+		Email(message=u'非法邮箱地址'), email_exist])
+	password = PasswordField("密码", validators=[DataRequired(message='密码为空')])
 	login = SubmitField("登录")
 
 #用户注册表单模型
 class SignupForm(FlaskForm):
 	def email_unique(self, field):
 		if User.query.filter_by(email=field.data).first():
-			raise ValidationError('为啥用人家的邮箱?')
+			raise ValidationError('邮箱已存在')
 	#检测密码中是否有空格
 	def password_noblank(self, field):
 		for s in field.data:
 			if s == ' ':
-				raise ValidationError('不要搞事情!')
+				raise ValidationError('密码中不可包含空格')
 
 	name = StringField('姓名', validators=[DataRequired(message='必填')])
-	email = StringField("邮箱", validators=[DataRequired(message='连邮箱都没有?'), 
-		Email(message='神TM邮箱'), email_unique])
-	password = PasswordField("密码", validators=[DataRequired(message='密码不设置的?'),
-		Length(6, message='这么短?'), password_noblank])		
-	confirm = PasswordField("确认密码", validators=[DataRequired(message='确认一下是好的'),
+	email = StringField("邮箱", validators=[DataRequired(message='必填'), 
+		Email(message='非法邮箱地址'), email_unique])
+	password = PasswordField("密码", validators=[DataRequired(message='必填'),
+		Length(6, message='密码过短'), password_noblank])		
+	confirm = PasswordField("确认密码", validators=[DataRequired(message='已确认'),
 		EqualTo('password', "两次密码不一样!")])
 	role = RadioField('身份', choices=[('学生', '学生'), ('教师', '教师')], default='教师')
 	signup = SubmitField("注册")
@@ -128,13 +128,13 @@ class ForgetForm(FlaskForm):
 	def password_noblank(self, field):
 		for s in field.data:
 			if s == ' ':
-				raise ValidationError('搞事情!')
+				raise ValidationError('密码中不可包含空格')
 
-	email = StringField("注册时邮箱", validators=[DataRequired(message='邮箱不能为空'), 
-		Email(message='这也叫邮箱?'), email_exist])
-	password = PasswordField("密码", validators=[DataRequired(message='密码不能为空'),
-		Length(6, message='密码搞这么短干嘛?'), password_noblank])		
-	confirm = PasswordField("确认密码", validators=[DataRequired(message='密码不能为空'),
+	email = StringField("注册时邮箱：", validators=[DataRequired(message='邮箱不能为空'), 
+		Email(message='非法邮箱地址'), email_exist])
+	password = PasswordField("请填写新密码：", validators=[DataRequired(message='密码不能为空'),
+		Length(6, message='密码过短'), password_noblank])		
+	confirm = PasswordField("确认密码：", validators=[DataRequired(message='密码不能为空'),
 		EqualTo('password', "两次密码不一致")])
 	getback = SubmitField("确认")	
 
@@ -147,17 +147,17 @@ class AddForm(FlaskForm):
 			if student.stu_id == field.data:
 				raise ValidationError("该学号学生已存在")
 
-	stu_id = StringField("学生学号", validators=[DataRequired(message="这能空?"), Length(6, 15, "有点短?有点长?"), student_exist])
-	name = StringField("学生姓名", validators=[DataRequired(message="这能空?"), Length(-1, 10, "名字过长")])
-	cls = StringField("专业班级", validators=[DataRequired(message="没有数据不好交差"), Length(-1, 15, "精简一下")])
-	addr = StringField("所在寝室", validators=[DataRequired(message="没有数据不好交差"), Length(-1, 15, "字太多了")])
+	stu_id = StringField("学生学号", validators=[DataRequired(message="学号不可为空"), Length(6, 15, "长度不符合"), student_exist])
+	name = StringField("学生姓名", validators=[DataRequired(message="姓名不可为空"), Length(-1, 10, "长度不符合")])
+	cls = StringField("专业班级", validators=[DataRequired(message="没有数据不好交差"), Length(-1, 15, "长度不符合")])
+	addr = StringField("所在寝室", validators=[DataRequired(message="没有数据不好交差"), Length(-1, 15, "长度不符合")])
 	phone = StringField("联系方式", validators=[DataRequired(message="没有数据不好交差")])
-	add = SubmitField("添加吧皮卡丘!")
+	add = SubmitField("添加")
 
 #教师搜索学生表单模型
 class SearchForm(FlaskForm):
 	keyword = StringField("输入查询关键字", validators=[DataRequired(message="输入不能为空")])
-	search = SubmitField("Find It!")
+	search = SubmitField("查找")
 		
 #用户模型
 class User(db.Model):
@@ -254,7 +254,7 @@ def signup():
 		#发送验证邮件
 		user = User.query.filter_by(email=form.email.data).first()
 		sub = "请点击下方链接继续完成注册："
-		link = '127.0.0.1/c/' + str(user.id) + '/' + active_code
+		link = '127.0.0.1/signup/' + str(user.id) + '/' + active_code
 		send_mail(new_user.email, sub, link)
 		
 		flash("请查收邮件以继续完成注册")
@@ -262,7 +262,7 @@ def signup():
 	return render_template('form.html', form=form)
 
 #验证邮箱路由控制
-@app.route('/c/<int:id>/<active_code>')
+@app.route('/signup/<int:id>/<active_code>')
 def check(id, active_code):
 	user = User.query.filter_by(id=id).first()
 	#验证随机码是否匹配
@@ -294,7 +294,7 @@ def new_password(id, active_code, password):
 		#更改密码并存入数据库
 		user.password = password
 		db.session.add(user)
-		return render_template('success.html', action="密码更改")
+		return render_template('success.html', action="密码已成功更改")
 	abort(400)
 
 #教师主页路由控制
@@ -603,4 +603,5 @@ def download(filename):
 
 #程序启动入口
 if __name__ == '__main__':
+	#manager.debug=True
 	manager.run()
