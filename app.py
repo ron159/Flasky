@@ -9,15 +9,15 @@ from wtforms.validators import Email, DataRequired, Length, EqualTo
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
-from threading import Thread
+#from threading import Thread
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
-
+from mail import send_mail
 #创建应用实例
 app = Flask(__name__)
 
 #配置表单密令
-SECRET_KEY='\xfe{\xa9\n\x1b0\x16\xcfF\xb103\x9d)\xdf\xfd\xab\xd8\x9b\xbf\xf2\xf5\xb0\x86'
+#SECRET_KEY='\xfe{\xa9\n\x1b0\x16\xcfF\xb103\x9d)\xdf\xfd\xab\xd8\x9b\xbf\xf2\xf5\xb0\x86'
 
 #数据库配置
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -26,18 +26,20 @@ SQLALCHEMY_COMMIT_ON_TEARDOWN = True	#更改自动提交
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 #邮件配置
-MAIL_SERVER = 'smtp.mail.com'	#邮件服务器
-MAIL_PORT = 587	#端口
-MAIL_USE_SSL = False
-MAIL_USE_TLS = True	
-MAIL_DEBUG = True	
-MAIL_USERNAME = 'jamesdd143@mail.com'	#邮箱账号
-MAIL_PASSWORD = r'jm-&X_85.5\NQhPD'	#邮箱密码
+# MAIL_SERVER = 'smtp.mail.com'	#邮件服务器
+# MAIL_PORT = 587	#端口
+# MAIL_USE_SSL = False
+# MAIL_USE_TLS = True	
+# MAIL_DEBUG = True	
+# MAIL_USERNAME = 'jamesdd143@mail.com'	#邮箱账号
+# MAIL_PASSWORD = r'jm-&X_85.5\NQhPD'	#邮箱密码
 
-#应用配置
+#应用配置读取
 app.config.from_object(__name__)
+app.config.from_object('config')
 
-#实例化所需模块
+#首先在此处实例化所有模块
+#需要注意的是，配置文件的读取必须在实例化以前，否则无法正确读取配置
 bootstrap = Bootstrap(app)
 db = SQLAlchemy(app)
 mail = Mail(app)
@@ -46,17 +48,17 @@ migrate = Migrate(app, db)
 manager.add_command('db', MigrateCommand)
 
 #异步发送邮件
-def send_async_mail(app, msg):
-	with app.app_context():
-		mail.send(msg)
+# def send_async_mail(app, msg):
+# 	with app.app_context():
+# 		mail.send(msg)
 
-def send_mail(to, sub, link):
-	msg = Message('Flaskr邮件来啦', sender=('Flaskr', 'jamesdd143@mail.com'), recipients=[to])
-	msg.body = sub + link
-	msg.html = '<h1>' + sub + '</h1><a href=' + link + '>' + link + '</a>'
-	thr = Thread(target=send_async_mail, args=[app, msg])
-	thr.start()
-	return thr
+# def send_mail(to, sub, link):
+# 	msg = Message('Flaskr邮件来啦', sender=('Flaskr', 'jamesdd143@mail.com'), recipients=[to])
+# 	msg.body = sub + link
+# 	msg.html = '<h1>' + sub + '</h1><a href=' + link + '>' + link + '</a>'
+# 	thr = Thread(target=send_async_mail, args=[app, msg])
+# 	thr.start()
+# 	return thr
 
 #管理员表单模型
 class AdminForm(FlaskForm):
@@ -255,7 +257,7 @@ def signup():
 		user = User.query.filter_by(email=form.email.data).first()
 		sub = "请点击下方链接继续完成注册："
 		link = '127.0.0.1/signup/' + str(user.id) + '/' + active_code
-		send_mail(new_user.email, sub, link)
+		send_mail(new_user.email, sub, link, app, mail)
 		
 		flash("请查收邮件以继续完成注册")
 		return redirect(url_for('login'))
@@ -282,7 +284,7 @@ def forget():
 		sub = "请点击下方链接继续完成密码更改："
 		link = 'www.hustljh.cn/f/' + str(user.id) + '/' + user.active_code + '/' + form.password.data
 		flash("请查收邮件以完成密码更改")
-		send_mail(user.email, sub, link)
+		send_mail(user.email, sub, link, app,mail)
 		return redirect(url_for('login'))
 	return render_template("form.html", form=form)
 
@@ -500,6 +502,11 @@ def admin_normal():
 		return 'ok'
 	abort(400)
 
+#关于页面设置
+@app.route('/about')
+def about():
+	return render_template('/about.html')
+
 #错误页面路由控制
 @app.errorhandler(404)
 def page_not_found(e):
@@ -595,13 +602,10 @@ def bad_request(e):
 # 	return 'ok'
 
 
-#文件下载路由控制
-@app.route('/download/<path:filename>')
-def download(filename):
-	return send_from_directory('/usr/share/flasky', filename, as_attachment=True)
+# #文件下载路由控制
+# @app.route('/download/<path:filename>')
+# def download(filename):
+# 	return send_from_directory('/usr/share/flasky', filename, as_attachment=True)
 
-
-#程序启动入口
 if __name__ == '__main__':
-	#manager.debug=True
 	manager.run()
