@@ -12,15 +12,17 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 			</button>
-			<a href="/about" class="navbar-brand">关于</a>
+			<a href="/" class="navbar-brand">首页</a>
 		</div>
 		<div class="navbar-collapse collapse">			
 			{% if user %}
 			<ul class="nav navbar-nav">
 				{% if user.role == '教师' %}				
-				<li><a href="/u/{{ user.id }}">首页</a></li>
+				<!-- <li><a href="/u/{{ user.id }}">首页</a></li> -->
+				<li><a href="/about">关于</a></li>
 				{% elif user.role == '学生' %}
-				<li><a href="/s/{{ user.id }}">首页</a></li>
+				<!-- <li><a href="/s/{{ user.id }}">首页</a></li> -->
+				<li><a href="/about">关于</a></li>
 				{% endif %}
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
@@ -30,7 +32,7 @@
 		    </ul>
 		    {% else %}
 		    <ul class="nav navbar-nav">
-				<li><a href="/">首页</a></li>
+				<li><a href="/about">关于</a></li>
 			</ul>
 		    <ul class="nav navbar-nav navbar-right">
 		        <li><a href="/signup">注册</a></li>

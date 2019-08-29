@@ -1,3 +1,5 @@
+import os 
+
 #表单秘钥
 CSRF_ENABLED = True
 SECRET_KEY = 'this-is-a-test-secret-key'
@@ -11,3 +13,9 @@ MAIL_USE_TLS = True
 MAIL_DEBUG = True	
 MAIL_USERNAME = 'jamesdd143@mail.com'	#邮箱账号
 MAIL_PASSWORD = r'jm-&X_85.5\NQhPD'	#邮箱密码
+
+#数据库配置
+basedir = os.path.abspath(os.path.dirname(__file__))
+SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'data.sqlite')	#数据库URI		
+SQLALCHEMY_COMMIT_ON_TEARDOWN = True	#更改自动提交
+SQLALCHEMY_TRACK_MODIFICATIONS = True
