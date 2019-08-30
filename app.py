@@ -468,7 +468,7 @@ def admin_add():
 			n.append(str(random.randint(0, 9)))
 		active_code = ''.join(n)
 		#自动构建通过验证的用户
-		user = User(name=form.name.data, email=form.email.data, password=form.password.data,
+		user = User(name=form.name.data, email=form.email.data, phone=form.phone.data, password=form.password.data,
 			role=form.role.data, active_code=active_code, active_state=True)
 		db.session.add(user)
 		flash('增加成功')

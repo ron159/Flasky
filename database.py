@@ -8,9 +8,13 @@ db = SQLAlchemy()
 class User(db.Model):
 	__tablename__ = 'users'
 	id = db.Column(db.Integer, primary_key=True)
+	stu_id = db.Column(db.String(64), index=True)
 	name = db.Column(db.String(64))
+	#联系方式
 	email = db.Column(db.String(64), index=True, unique=True)
-	password = db.Column(db.String(64))
+	phone = db.Column(db.String(64), index=True, unique=True)
+	#密码
+	password = db.Column(db.String(64), default='123456')
 	#身份
 	role = db.Column(db.String(64), default='学生')
 	#验证邮箱码
@@ -58,10 +62,15 @@ class AdminAddForm(FlaskForm):
 	def email_unique(self, field):
 		if User.query.filter_by(email=field.data).first():
 			raise ValidationError('邮箱存在')
+	def phone_unique(self, field):
+		if User.query.filter_by(phone=field.data).first():
+			raise 	ValidationError('手机号已存在')
 
 	name = StringField('用户名', validators=[DataRequired()])
+	stu_id = StringField('学号', validators=[DataRequired()])
 	email = StringField('用户邮箱', validators=[DataRequired(), email_unique])
-	password = StringField('用户密码', validators=[DataRequired()])
+	phone = StringField('用户手机', default=' ', validators=[phone_unique])
+	password = StringField('用户密码', validators=[DataRequired()], default='123456')
 	role = RadioField('身份', choices=[('学生', '学生'), ('教师', '教师')], default='学生')
 	add = SubmitField("增加用户")
 			
@@ -82,6 +91,9 @@ class SignupForm(FlaskForm):
 	def email_unique(self, field):
 		if User.query.filter_by(email=field.data).first():
 			raise ValidationError('邮箱已存在')
+	def phone_unique(self, field):
+		if User.query.filter_by(phone=field.data).first():
+			raise 	ValidationError('手机号已存在')
 	#检测密码中是否有空格
 	def password_noblank(self, field):
 		for s in field.data:
@@ -91,6 +103,8 @@ class SignupForm(FlaskForm):
 	name = StringField('姓名', validators=[DataRequired(message='必填')])
 	email = StringField("邮箱", validators=[DataRequired(message='必填'), 
 		Email(message='非法邮箱地址'), email_unique])
+	phone = StringField("手机号", validators=[DataRequired(message='必填'), 
+		Length(11, 11, message='非法手机号'), phone_unique])
 	password = PasswordField("密码", validators=[DataRequired(message='必填'),
 		Length(6, message='密码过短'), password_noblank])		
 	confirm = PasswordField("确认密码", validators=[DataRequired(message='已确认'),
