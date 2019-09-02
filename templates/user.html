@@ -16,7 +16,8 @@
 		<th>学生姓名</th>
 		<th>专业班级</th>
 		<th>所在寝室</th>
-		<th>联系方式</th>
+		<th>联系电话</th>
+		<th>邮箱</th>
 		<th>操作</th>
 	</thead>
 	
@@ -25,9 +26,10 @@
 		<tr>
 			<td class="data">{{ student.stu_id }}</td>
 			<td class="data">{{ student.name }}</td>
-			<td class="data">{{ student.cls }}</td>
-			<td class="data">{{ student.addr }}</td>
+			<td class="data">{{ student.major }}</td>
+			<td class="data">{{ student.address }}</td>
 			<td class="data">{{ student.phone }}</td>
+			<td class="data">{{ student.email }}</td>
 			<td class="hide">{{ student.id }}</td>
 			<td class="delete">删除</td>
 		</tr>

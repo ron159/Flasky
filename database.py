@@ -10,6 +10,8 @@ class User(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	stu_id = db.Column(db.String(64), index=True)
 	name = db.Column(db.String(64))
+	major = db.Column(db.String(64))
+	address = db.Column(db.String(64))
 	#联系方式
 	email = db.Column(db.String(64), index=True, unique=True)
 	phone = db.Column(db.String(64), index=True, unique=True)
@@ -18,7 +20,7 @@ class User(db.Model):
 	#身份
 	role = db.Column(db.String(64), default='学生')
 	#验证邮箱码
-	active_code = db.Column(db.String(10))
+	active_code = db.Column(db.String(6))
 	#激活状态
 	active_state = db.Column(db.Boolean, default=False)
 	#所管理的学生
@@ -33,9 +35,11 @@ class Student(db.Model):
 	stu_id = db.Column(db.String(64), index=True)
 	name = db.Column(db.String(64))
 	#班级
-	cls = db.Column(db.String(64))
+	major = db.Column(db.String(64))
 	#寝室
-	addr = db.Column(db.String(64))
+	address = db.Column(db.String(64))
+	#联系方式
+	email = db.Column(db.String(64))
 	phone = db.Column(db.String(64))
 	#教师id
 	user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
@@ -66,10 +70,12 @@ class AdminAddForm(FlaskForm):
 		if User.query.filter_by(phone=field.data).first():
 			raise 	ValidationError('手机号已存在')
 
+	stu_id = StringField('学号或工号', validators=[DataRequired()])
 	name = StringField('用户名', validators=[DataRequired()])
-	stu_id = StringField('学号', validators=[DataRequired()])
+	major = StringField('专业', validators=[DataRequired()])
+	address = StringField('寝室', validators=[DataRequired()])
 	email = StringField('用户邮箱', validators=[DataRequired(), email_unique])
-	phone = StringField('用户手机', default=' ', validators=[phone_unique])
+	phone = StringField('用户手机', default='', validators=[Length(11,11,message='长度不符合'), phone_unique])
 	password = StringField('用户密码', validators=[DataRequired()], default='123456')
 	role = RadioField('身份', choices=[('学生', '学生'), ('教师', '教师')], default='学生')
 	add = SubmitField("增加用户")
@@ -101,10 +107,12 @@ class SignupForm(FlaskForm):
 				raise ValidationError('密码中不可包含空格')
 
 	name = StringField('姓名', validators=[DataRequired(message='必填')])
+	stu_id = StringField('学号', validators=[DataRequired(message='必填')])
+	major = StringField('专业班级', validators=[DataRequired(message='必填')])
 	email = StringField("邮箱", validators=[DataRequired(message='必填'), 
 		Email(message='非法邮箱地址'), email_unique])
-	phone = StringField("手机号", validators=[DataRequired(message='必填'), 
-		Length(11, 11, message='非法手机号'), phone_unique])
+	phone = StringField("用户手机", validators=[DataRequired(message='必填'), 
+		Length(11, 11, message='长度不符合'), phone_unique])
 	password = PasswordField("密码", validators=[DataRequired(message='必填'),
 		Length(6, message='密码过短'), password_noblank])		
 	confirm = PasswordField("确认密码", validators=[DataRequired(message='已确认'),
@@ -138,11 +146,12 @@ class AddForm(FlaskForm):
 			if student.stu_id == field.data:
 				raise ValidationError("该学号学生已存在")
 
-	stu_id = StringField("学生学号", validators=[DataRequired(message="学号不可为空"), Length(6, 15, "长度不符合"), student_exist])
-	name = StringField("学生姓名", validators=[DataRequired(message="姓名不可为空"), Length(-1, 10, "长度不符合")])
-	cls = StringField("专业班级", validators=[DataRequired(message="没有数据不好交差"), Length(-1, 15, "长度不符合")])
-	addr = StringField("所在寝室", validators=[DataRequired(message="没有数据不好交差"), Length(-1, 15, "长度不符合")])
-	phone = StringField("联系方式", validators=[DataRequired(message="没有数据不好交差")])
+	stu_id = StringField("学生学号", validators=[DataRequired(message="不可为空"), Length(6, 15, "长度不符合"), student_exist])
+	name = StringField("学生姓名", validators=[DataRequired(message="不可为空"), Length(-1, 10, "长度不符合")])
+	major = StringField("专业班级", validators=[DataRequired(message="不可为空"), Length(-1, 15, "长度不符合")])
+	address = StringField("所在寝室", validators=[DataRequired(message="不可为空"), Length(-1, 15, "长度不符合")])
+	phone = StringField("联系电话", validators=[DataRequired(message="不可为空")])
+	email = StringField("邮箱", validators=[DataRequired(message="不可为空")])
 	add = SubmitField("添加")
 	
 #教师搜索学生表单模型

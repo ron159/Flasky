@@ -10,18 +10,21 @@
 			<th>教师姓名</th>
 			<th>学生人数</th>
 			<th>联系邮箱</th>
+			<th>操作</th>
 		</thead>
 		
 		<tbody>
 		{% for teacher in teachers %}			
 			<tr class="teacher">
-				<td>{{ teacher.name }}</td>
-				<td>{{ teacher.students.count() }}</td>
-				<td>{{ teacher.email }}</td>
+				<td >{{ teacher.name }}</td>
+				<td >{{ teacher.students.count() }}</td>
+				<td >{{ teacher.email }}</td>
 				<td class="hide">{{ teacher.id }}</td>
 				<td class='hide'><a href="/s/{{ user.id }}/{{ teacher.id }}"></a></td>
+				<td>
+					<button><a href='/s/{{ user.id }}/{{ teacher.id }}/join'>加入</a></button>
+				</td>
 			</tr>
-			
 		{% endfor %}
 		</tbody>	
 	</table>

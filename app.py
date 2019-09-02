@@ -18,24 +18,6 @@ from database import db, Student, User, AddForm, AdminForm, AdminAddForm, LoginF
 #创建应用实例
 app = Flask(__name__)
 
-#配置表单密令
-#SECRET_KEY='\xfe{\xa9\n\x1b0\x16\xcfF\xb103\x9d)\xdf\xfd\xab\xd8\x9b\xbf\xf2\xf5\xb0\x86'
-
-#数据库配置
-# basedir = os.path.abspath(os.path.dirname(__file__))
-# SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'data.sqlite')	#数据库URI		
-# SQLALCHEMY_COMMIT_ON_TEARDOWN = True	#更改自动提交
-# SQLALCHEMY_TRACK_MODIFICATIONS = True
-
-#邮件配置
-# MAIL_SERVER = 'smtp.mail.com'	#邮件服务器
-# MAIL_PORT = 587	#端口
-# MAIL_USE_SSL = False
-# MAIL_USE_TLS = True	
-# MAIL_DEBUG = True	
-# MAIL_USERNAME = 'jamesdd143@mail.com'	#邮箱账号
-# MAIL_PASSWORD = r'jm-&X_85.5\NQhPD'	#邮箱密码
-
 #应用配置读取
 #app.config.from_object(__name__)
 app.config.from_object('config')
@@ -50,152 +32,6 @@ mail = Mail(app)
 manager = Manager(app)
 migrate = Migrate(app, db)
 manager.add_command('db', MigrateCommand)
-
-#异步发送邮件
-# def send_async_mail(app, msg):
-# 	with app.app_context():
-# 		mail.send(msg)
-
-# def send_mail(to, sub, link):
-# 	msg = Message('Flaskr邮件来啦', sender=('Flaskr', 'jamesdd143@mail.com'), recipients=[to])
-# 	msg.body = sub + link
-# 	msg.html = '<h1>' + sub + '</h1><a href=' + link + '>' + link + '</a>'
-# 	thr = Thread(target=send_async_mail, args=[app, msg])
-# 	thr.start()
-# 	return thr
-
-# #管理员表单模型
-# class AdminForm(FlaskForm):
-# 	#邮箱验证
-# 	def account_check(self, field):
-# 		if field.data != 'admin@admin.com':
-# 			raise ValidationError('账号或者密码错误')
-# 	#密码验证
-# 	def password_check(self, field):
-# 		if field.data != 'admin':
-# 			raise ValidationError('账号或者密码错误')
-
-# 	email = StringField("管理员邮箱", validators=[DataRequired(message='邮箱不能为空'), 
-# 		Email(message=u'非法邮箱地址'), account_check])
-# 	password = PasswordField("管理员密码", validators=[DataRequired(message='密码不能为空'), password_check])
-# 	login = SubmitField("登录")
-
-# #管理员增加用户表单模型
-# class AdminAddForm(FlaskForm):
-# 	#检测邮箱唯一性
-# 	def email_unique(self, field):
-# 		if User.query.filter_by(email=field.data).first():
-# 			raise ValidationError('邮箱存在')
-
-# 	name = StringField('用户名', validators=[DataRequired()])
-# 	email = StringField('用户邮箱', validators=[DataRequired(), email_unique])
-# 	password = StringField('用户密码', validators=[DataRequired()])
-# 	role = RadioField('身份', choices=[('学生', '学生'), ('教师', '教师')], default='学生')
-# 	add = SubmitField("增加用户")
-			
-# #用户登录表单模型
-# class LoginForm(FlaskForm):
-# 	#验证用户是否存在
-# 	def email_exist(self, field):
-# 		if not User.query.filter_by(email=field.data).first():
-# 			raise ValidationError('账号不存在')
-	
-# 	email = StringField("邮箱", validators=[DataRequired(message='邮箱为空'), 
-# 		Email(message=u'非法邮箱地址'), email_exist])
-# 	password = PasswordField("密码", validators=[DataRequired(message='密码为空')])
-# 	login = SubmitField("登录")
-
-# #用户注册表单模型
-# class SignupForm(FlaskForm):
-# 	def email_unique(self, field):
-# 		if User.query.filter_by(email=field.data).first():
-# 			raise ValidationError('邮箱已存在')
-# 	#检测密码中是否有空格
-# 	def password_noblank(self, field):
-# 		for s in field.data:
-# 			if s == ' ':
-# 				raise ValidationError('密码中不可包含空格')
-
-# 	name = StringField('姓名', validators=[DataRequired(message='必填')])
-# 	email = StringField("邮箱", validators=[DataRequired(message='必填'), 
-# 		Email(message='非法邮箱地址'), email_unique])
-# 	password = PasswordField("密码", validators=[DataRequired(message='必填'),
-# 		Length(6, message='密码过短'), password_noblank])		
-# 	confirm = PasswordField("确认密码", validators=[DataRequired(message='已确认'),
-# 		EqualTo('password', "两次密码不一样!")])
-# 	role = RadioField('身份', choices=[('学生', '学生'), ('教师', '教师')], default='教师')
-# 	signup = SubmitField("注册")
-
-# #找回密码表单模型
-# class ForgetForm(FlaskForm):
-# 	def email_exist(self, field):
-# 		if not User.query.filter_by(email=field.data).first():
-# 			raise ValidationError('没有这个邮箱')
-# 	def password_noblank(self, field):
-# 		for s in field.data:
-# 			if s == ' ':
-# 				raise ValidationError('密码中不可包含空格')
-
-# 	email = StringField("注册时邮箱：", validators=[DataRequired(message='邮箱不能为空'), 
-# 		Email(message='非法邮箱地址'), email_exist])
-# 	password = PasswordField("请填写新密码：", validators=[DataRequired(message='密码不能为空'),
-# 		Length(6, message='密码过短'), password_noblank])		
-# 	confirm = PasswordField("确认密码：", validators=[DataRequired(message='密码不能为空'),
-# 		EqualTo('password', "两次密码不一致")])
-# 	getback = SubmitField("确认")	
-
-# #教师新增学生表单模型
-# class AddForm(FlaskForm):
-# 	#检测学号是否存在
-# 	def student_exist(self, field):
-# 		user = User.query.filter_by(id=session.get('user_id')).first()
-# 		for student in user.students:
-# 			if student.stu_id == field.data:
-# 				raise ValidationError("该学号学生已存在")
-
-# 	stu_id = StringField("学生学号", validators=[DataRequired(message="学号不可为空"), Length(6, 15, "长度不符合"), student_exist])
-# 	name = StringField("学生姓名", validators=[DataRequired(message="姓名不可为空"), Length(-1, 10, "长度不符合")])
-# 	cls = StringField("专业班级", validators=[DataRequired(message="没有数据不好交差"), Length(-1, 15, "长度不符合")])
-# 	addr = StringField("所在寝室", validators=[DataRequired(message="没有数据不好交差"), Length(-1, 15, "长度不符合")])
-# 	phone = StringField("联系方式", validators=[DataRequired(message="没有数据不好交差")])
-# 	add = SubmitField("添加")
-
-# #教师搜索学生表单模型
-# class SearchForm(FlaskForm):
-# 	keyword = StringField("输入查询关键字", validators=[DataRequired(message="输入不能为空")])
-# 	search = SubmitField("查找")
-		
-# #用户模型
-# class User(db.Model):
-# 	__tablename__ = 'users'
-# 	id = db.Column(db.Integer, primary_key=True)
-# 	name = db.Column(db.String(64))
-# 	email = db.Column(db.String(64), index=True, unique=True)
-# 	password = db.Column(db.String(64))
-# 	#身份
-# 	role = db.Column(db.String(64), default='学生')
-# 	#验证邮箱码
-# 	active_code = db.Column(db.String(10))
-# 	#激活状态
-# 	active_state = db.Column(db.Boolean, default=False)
-# 	#所管理的学生
-# 	students = db.relationship('Student', backref='user', lazy='dynamic')
-# 	#冻结状态
-# 	frozen = db.Column(db.Boolean, default=False)
-
-# #学生模型
-# class Student(db.Model):
-# 	__tablename__ = 'students'
-# 	id = db.Column(db.Integer, primary_key=True)
-# 	stu_id = db.Column(db.String(64), index=True)
-# 	name = db.Column(db.String(64))
-# 	#班级
-# 	cls = db.Column(db.String(64))
-# 	#寝室
-# 	addr = db.Column(db.String(64))
-# 	phone = db.Column(db.String(64))
-# 	#教师id
-# 	user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
 #初始化数据库
 db.create_all()
@@ -330,6 +166,22 @@ def student(id):
 		abort(400);
 	return render_template('student.html', user=user, teachers=teachers)
 
+#学生加入路由设置
+@app.route('/s/<int:user_id>/<int:teacher_id>/join')
+def join(user_id, teacher_id):
+	user = User.query.filter_by(id=user_id).first()
+	teacher = User.query.filter_by(id=teacher_id).first()
+	teachers = User.query.filter_by(role='教师').all()
+	new_student = Student(stu_id=user.id, name=user.name, major=user.major, address=user.address, 
+							email=user.email, phone=user.phone, user_id=teacher_id)
+	if Student.query.filter_by(stu_id=user.id, user_id=teacher_id).all():
+		flash('加入失败，你已经是该老师的学生')
+	else:
+		db.session.add(new_student)
+		flash('加入成功')
+	return render_template('/student.html', user=user, teachers=teachers)
+
+
 #账户信息路由控制
 @app.route('/u/<int:id>/account')
 def account(id):
@@ -374,7 +226,7 @@ def add(id):
 	if form.validate_on_submit():
 		#构建新学生并保存
 		new_student = Student(stu_id=form.stu_id.data, name=form.name.data,
-			cls=form.cls.data, addr=form.addr.data, phone=form.phone.data, user_id=id)
+		 	major=form.major.data, address=form.address.data, phone=form.phone.data, email=form.email.data, user_id=id)
 		db.session.add(new_student)
 		flash("添加成功")
 		return redirect('/u/' + str(id) + '/add')	
@@ -395,8 +247,8 @@ def search(id):
 	hide = set()	#不需显示的学生集合
 	if form.validate_on_submit():
 		for student in user.students:
-			word = str(student.stu_id) + ' ' + student.name + ' ' + student.cls + ' ' + \
-				student.addr + ' ' + student.phone
+			word = str(student.stu_id) + ' ' + student.name + ' ' + student.major + ' ' + \
+				student.address + ' ' + student.phone + ' ' + student.email
 			#没有关键字则添加进hide集合
 			if form.keyword.data not in word:
 				hide.add(student)
@@ -432,9 +284,10 @@ def change(id):
 	student = Student.query.filter_by(id=request.form.get('id')).first()
 	student.stu_id = request.form.get('stu_id')
 	student.name = request.form.get('name')
-	student.cls = request.form.get('cls')
-	student.addr = request.form.get('addr')
+	student.major = request.form.get('major')
+	student.address = request.form.get('address')
 	student.phone = request.form.get('phone')
+	student.email = request.form.get('email')
 	db.session.add(student)
 	return jsonify({'result': 'success'})
 
@@ -464,16 +317,28 @@ def admin_add():
 	if form.validate_on_submit():
 		#简化增加用户,自动生成随机码
 		n = []
-		for i in range(10):
+		for i in range(6):
 			n.append(str(random.randint(0, 9)))
 		active_code = ''.join(n)
 		#自动构建通过验证的用户
-		user = User(name=form.name.data, email=form.email.data, phone=form.phone.data, password=form.password.data,
-			role=form.role.data, active_code=active_code, active_state=True)
+		user = User(stu_id=form.stu_id.data, name=form.name.data, major=form.major.data, address=form.address.data, email=form.email.data, phone=form.phone.data, 
+			password=form.password.data, role=form.role.data, active_code=active_code, active_state=True)
 		db.session.add(user)
 		flash('增加成功')
 		return redirect(url_for('admin_add'))
 	return render_template('adminadd.html', form=form)
+
+#管理员更改用户路由控制
+@app.route('/admin/control/change', methods=['POST'])
+def admin_change():
+	#更改学生信息
+	user = User.query.filter_by(id=request.form.get('id')).first()
+	user.stu_id = request.form.get('stu_id')
+	user.name = request.form.get('name')
+	user.email = request.form.get('email')
+	user.phone = request.form.get('phone')
+	db.session.add(user)
+	return jsonify({'result': 'success'})
 
 #管理员删除用户路由控制
 @app.route('/admin/delete', methods=['POST'])
@@ -506,7 +371,7 @@ def admin_normal():
 		return 'ok'
 	abort(400)
 
-#关于页面设置
+#关于页面路由控制
 @app.route('/about')
 def about():
 	return render_template('/about.html')

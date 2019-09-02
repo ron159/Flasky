@@ -8,7 +8,8 @@
 		<th>学生姓名</th>
 		<th>专业班级</th>
 		<th>所在寝室</th>
-		<th>联系方式</th>
+		<th>联系电话</th>
+		<th>邮箱</th>
 	</thead>
 	
 	<tbody>
@@ -16,9 +17,10 @@
 		<tr>
 			<td>{{ student.stu_id }}</td>
 			<td>{{ student.name }}</td>
-			<td>{{ student.cls }}</td>
-			<td>{{ student.addr }}</td>
+			<td>{{ student.major }}</td>
+			<td>{{ student.address }}</td>
 			<td>{{ student.phone }}</td>
+			<td>{{student.email}}</td>
 		</tr>
 	{% endfor %}
 	</tbody>	

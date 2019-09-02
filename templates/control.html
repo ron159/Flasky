@@ -38,7 +38,10 @@
 	<table class="table table-bordered table-hover table-striped table-condensed">
 		<thead>
 			<th>编号</th>
+			<th>学号</th>
 			<th>姓名</th>
+			<th>专业班级</th>
+			<th>寝室</th>
 			<th>邮箱</th>
 			<th>手机号</th>
 			<th>角色</th>
@@ -51,18 +54,22 @@
 		<tbody>
 			{% for user in users %}
 			<tr>
-				<td>{{ user.id }}</td>
-				<td>{{ user.name }}</td>
-				<td>{{ user.email }}</td>
-				<td>{{ user.phone }}</td>
-				<td>{{ user.role }}</td>
-				<td>{{ user.active_code }}</td>
-				<td>{{ user.active_state }}</td>
-				<td>{{ user.students.count() }}</td>
+				<td class="data">{{ user.id }}</td>
+				<td class="data">{{ user.stu_id }}</td>
+				<td class="data">{{ user.name }}</td>
+				<td class="data">{{ user.major }}</td>
+				<td class="data">{{ user.address }}</td>
+				<td class="data">{{ user.email }}</td>
+				<td class="data">{{ user.phone }}</td>
+				<td class="data">{{ user.role }}</td>
+				<td class="data">{{ user.active_code }}</td>
+				<td class="data">{{ user.active_state }}</td>
+				<td class="data">{{ user.students.count() }}</td>
 				<td>{% if user.frozen %}已冻结{% else %}未冻结{% endif %}</td>
 				<td>
 					<button class="delete">删除</button>
 					<button class="frozen">{% if user.frozen %}解冻{% else %}冻结{% endif %}</button>
+					<button class="save">保存</button>
 				</td>
 			</tr>
 			{% endfor %}
@@ -82,16 +89,66 @@ $(document).ready(function() {
 	});
 
 	$('.frozen').click(function() {
-		if ($($(this).parent().siblings()[7]).text() === '未冻结') {
+		if ($($(this).parent().siblings()[11]).text() === '未冻结') {
 			$.post('/admin/frozen', {id: $(this).parent().siblings().first().text()});
 			$(this).text('解冻');
-			$($(this).parent().siblings()[7]).text('已冻结');
+			$($(this).parent().siblings()[11]).text('已冻结');
 		} else {
 			$.post('/admin/normal', {id: $(this).parent().siblings().first().text()});
 			$(this).text('冻结');
-			$($(this).parent().siblings()[7]).text('未冻结');
+			$($(this).parent().siblings()[11]).text('未冻结');
 		}
 	});
+	//数据修改代码
+	var close = function() {
+		var $not_close = $('.edit');
+		if ($not_close) {
+			$old_input = $not_close.children().first();
+			$not_close.text($old_input.val());
+			$old_input.remove();
+			$not_close.attr('class', 'data');
+		};
+	};
+	
+	var edit = function() {
+		if ($(this).children().length === 0) {
+			var data = $(this).text();
+			var $input = $('<input type="text"/>');
+			$(this).text('');
+			$input.val(data);
+			$(this).append($input);
+			close();
+			$(this).attr('class', 'edit');
+		}	
+	};
+	//鼠标悬停在待修改的数据上，css控制变色
+	$(".data").click(edit).hover(function() {
+		$(this).css('background-color', 'lightblue');
+	}, function() {
+		$(this).css('background-color', 'white');
+	});
+	$(".data").click(function() {
+		var $save = $(this).siblings().last();
+		$save.attr('class', 'save');
+		$save.unbind('click');
+		$save.click(function(e) {
+			close();
+			var user = $(this).siblings();
+			$.post(
+				'/admin/control/change', 
+				{
+					id: $(user[0]).text(),
+					stu_id: $(user[1]).text(), 
+					name: $(user[2]).text(), 
+					email: $(user[5]).text(), 
+					phone: $(user[6]).text()
+				}, 
+				function(data) {},
+				'json'
+			);
+		})	
+	});
+	
 });
 </script>
 {% endblock %}
