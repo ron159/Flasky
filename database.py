@@ -71,10 +71,10 @@ class AdminAddForm(FlaskForm):
 			raise 	ValidationError('手机号已存在')
 
 	stu_id = StringField('学号或工号', validators=[DataRequired()])
-	name = StringField('用户名', validators=[DataRequired()])
-	major = StringField('专业', validators=[DataRequired()])
+	name = StringField('姓名', validators=[DataRequired()])
+	major = StringField('专业班级', validators=[DataRequired()])
 	address = StringField('寝室', validators=[DataRequired()])
-	email = StringField('用户邮箱', validators=[DataRequired(), email_unique])
+	email = StringField('邮箱', validators=[DataRequired(), email_unique])
 	phone = StringField('用户手机', default='', validators=[Length(11,11,message='长度不符合'), phone_unique])
 	password = StringField('用户密码', validators=[DataRequired()], default='123456')
 	role = RadioField('身份', choices=[('学生', '学生'), ('教师', '教师')], default='学生')
@@ -107,17 +107,18 @@ class SignupForm(FlaskForm):
 				raise ValidationError('密码中不可包含空格')
 
 	name = StringField('姓名', validators=[DataRequired(message='必填')])
-	stu_id = StringField('学号', validators=[DataRequired(message='必填')])
+	stu_id = StringField('学号或工号', validators=[DataRequired(message='必填')])
 	major = StringField('专业班级', validators=[DataRequired(message='必填')])
 	email = StringField("邮箱", validators=[DataRequired(message='必填'), 
 		Email(message='非法邮箱地址'), email_unique])
-	phone = StringField("用户手机", validators=[DataRequired(message='必填'), 
+	phone = StringField("手机号", validators=[DataRequired(message='必填'), 
 		Length(11, 11, message='长度不符合'), phone_unique])
+	address = StringField("寝室或住址", validators=[DataRequired(message='必填')])
 	password = PasswordField("密码", validators=[DataRequired(message='必填'),
 		Length(6, message='密码过短'), password_noblank])		
 	confirm = PasswordField("确认密码", validators=[DataRequired(message='已确认'),
 		EqualTo('password', "两次密码不一样!")])
-	role = RadioField('身份', choices=[('学生', '学生'), ('教师', '教师')], default='教师')
+	role = RadioField('身份', choices=[('学生', '学生'), ('教师', '教师')], default='学生')
 	signup = SubmitField("注册")
 
 #找回密码表单模型
