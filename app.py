@@ -113,7 +113,7 @@ def forget():
         # 发送找回密码邮件
         user = User.query.filter_by(email=form.email.data).first()
         sub = "请点击链接继续完成密码更改："
-        link = 'www.hustljh.cn/f/' + \
+        link = '127.0.0.1/f/' + \
             str(user.id) + '/' + user.active_code + '/' + form.password.data
         flash("请查收邮件以完成密码更改")
         send_mail(user.email, sub, link, app, mail)
