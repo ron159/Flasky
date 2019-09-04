@@ -162,7 +162,7 @@ def student(id):
 @app.route('/s/<int:user_id>/<int:teacher_id>/join')
 def join(user_id, teacher_id):
     user = User.query.filter_by(id=user_id).first()
-    #teacher = User.query.filter_by(id=teacher_id).first()
+    teacher = User.query.filter_by(id=teacher_id).first()
     teachers = User.query.filter_by(role='教师').all()
     new_student = Student(stu_id=user.id, name=user.name, major=user.major, address=user.address,
                           email=user.email, phone=user.phone, user_id=teacher_id)
